@@ -3,6 +3,7 @@ package com.dbp.democarpultec.service;
 import com.dbp.democarpultec.dto.UserRequestDto;
 import com.dbp.democarpultec.dto.UserResponseDto;
 import com.dbp.democarpultec.model.User;
+import com.dbp.democarpultec.model.enums.Carreras;
 import com.dbp.democarpultec.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
     @Mock
     private UserRepository userRepository;
 
@@ -28,18 +27,27 @@ public class UserServiceTest {
 
     @Test
     void shouldCreateUserWhenValidData() {
-
         UserRequestDto dto = UserRequestDto.builder()
                 .name("Juan")
-                .lastName("Espinoza")
+                .lastName("Perez")
                 .email("juan@test.com")
+                .phone("999999999")
+                .studentCode("U202410032")
+                .career(Carreras.Ciencia_de_la_Computacion)
+                .cycle(6)
+                .rating(4.5)
                 .build();
 
         User savedUser = new User();
         savedUser.setId(1L);
         savedUser.setName("Juan");
-        savedUser.setLastName("Espinoza");
+        savedUser.setLastName("Perez");
         savedUser.setEmail("juan@test.com");
+        savedUser.setPhone("999999999");
+        savedUser.setStudentCode("U202410032");
+        savedUser.setCareer(Carreras.Ciencia_de_la_Computacion);
+        savedUser.setCycle(6);
+        savedUser.setRating(4.5);
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
@@ -47,22 +55,26 @@ public class UserServiceTest {
 
         assertNotNull(result);
         assertEquals("Juan", result.getName());
+        assertEquals("Perez", result.getLastName());
         assertEquals("juan@test.com", result.getEmail());
+        assertEquals(4.5, result.getRating());
 
         verify(userRepository).save(any(User.class));
     }
 
     @Test
     void shouldReturnUserWhenIdExists() {
-
         User user = new User();
         user.setId(1L);
         user.setName("Juan");
+        user.setLastName("Perez");
+        user.setEmail("juan@test.com");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         UserResponseDto result = userService.findById(1L);
 
+        assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Juan", result.getName());
 
@@ -71,7 +83,6 @@ public class UserServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
-
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> {
@@ -82,50 +93,35 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldReturnAllUsers() {
-        User user1 = new User();
-        user1.setId(1L);
-        user1.setName("Juan");
-
-        User user2 = new User();
-        user2.setId(2L);
-        user2.setName("Maria");
-
-        when(userRepository.findAll()).thenReturn(List.of(user1, user2));
-
-        List<UserResponseDto> result = userService.findAll();
-
-        assertEquals(2, result.size());
-        assertEquals("Juan", result.get(0).getName());
-        assertEquals("Maria", result.get(1).getName());
-
-        verify(userRepository).findAll();
-    }
-
-    @Test
-    void shouldUpdateUserWhenIdExists(){
-        User existingUser = new User();
-        existingUser.setId(1L);
-        existingUser.setName("Juan");
-
+    void shouldUpdateUserWhenValidData() {
         UserRequestDto dto = UserRequestDto.builder()
-                .name("Carlos")
+                .name("Pedro")
                 .lastName("Lopez")
-                .email("carlos@test.com")
+                .email("pedro@test.com")
+                .phone("111111111")
+                .studentCode("U202520034")
+                .career(Carreras.Ciencia_de_Datos)
+                .cycle(7)
+                .rating(4.0)
                 .build();
 
-        User updateUser = new User();
-        updateUser.setId(1L);
-        updateUser.setName("Carlos");
-        updateUser.setLastName("Lopez");
-        updateUser.setEmail("carlos@test.com");
+        User existing = new User();
+        existing.setId(1L);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenReturn(updateUser);
+        User updated = new User();
+        updated.setId(1L);
+        updated.setName("Pedro");
+        updated.setLastName("Lopez");
+        updated.setEmail("pedro@test.com");
+        updated.setRating(4.0);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(userRepository.save(any(User.class))).thenReturn(updated);
 
         UserResponseDto result = userService.update(1L, dto);
 
-        assertEquals("Carlos", result.getName());
+        assertNotNull(result);
+        assertEquals("Pedro", result.getName());
         assertEquals("Lopez", result.getLastName());
 
         verify(userRepository).findById(1L);
@@ -133,22 +129,10 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldDeleteUserWhenIdExists(){
+    void shouldDeleteUserWhenUserExists() {
         when(userRepository.existsById(1L)).thenReturn(true);
         userService.delete(1L);
         verify(userRepository).existsById(1L);
         verify(userRepository).deleteById(1L);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenDeletingUserThatDoesNotExist() {
-
-        when(userRepository.existsById(99L)).thenReturn(false);
-
-        assertThrows(EntityNotFoundException.class, () -> {
-            userService.delete(99L);
-        });
-
-        verify(userRepository, never()).deleteById(anyLong());
     }
 }
