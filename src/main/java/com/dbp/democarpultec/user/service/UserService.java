@@ -1,6 +1,7 @@
 package com.dbp.democarpultec.user.service;
 
 import com.dbp.democarpultec.exception.UserVerificationRequiredException;
+import com.dbp.democarpultec.storage.ImageStorageService;
 import com.dbp.democarpultec.user.domain.User;
 import com.dbp.democarpultec.user.domain.UserRole;
 import com.dbp.democarpultec.user.dto.UserRequestDto;
@@ -11,6 +12,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ImageStorageService imageStorageService;
 
     public List<UserResponseDto> findAll() {
         return userRepository.findAll().stream().map(this::toResponseDto).toList();
@@ -32,6 +35,10 @@ public class UserService {
 
     public UserResponseDto findByEmail(@NonNull String email) {
         return toResponseDto(findEntityByEmail(email));
+    }
+
+    public UserResponseDto findByCurrentUserId(@NonNull Long currentUserId) {
+        return toResponseDto(findEntityById(currentUserId));
     }
 
     @Transactional
@@ -62,17 +69,17 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User findEntityById(@NonNull Long id) {
+    public @NonNull User findEntityById(@NonNull Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id " + id));
     }
 
-    public User findEntityByEmail(@NonNull String email) {
+    public @NonNull User findEntityByEmail(@NonNull String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
     }
 
-    public User findVerifiedEntityById(@NonNull Long id) {
+    public @NonNull User findVerifiedEntityById(@NonNull Long id) {
         User user = findEntityById(id);
         if (!user.isVerified()) {
             throw new UserVerificationRequiredException("User must be verified to access ride features");
@@ -84,6 +91,15 @@ public class UserService {
     public UserResponseDto verifyUser(@NonNull Long id) {
         User user = findEntityById(id);
         user.setVerified(true);
+        User savedUser = userRepository.save(user);
+        return toResponseDto(savedUser);
+    }
+
+    @Transactional
+    public UserResponseDto updateProfileImage(@NonNull Long currentUserId, MultipartFile profileImage) {
+        User user = findEntityById(currentUserId);
+        String uploadedUrl = imageStorageService.replaceUserProfileImage(currentUserId, profileImage, user.getProfileImageUrl());
+        user.setProfileImageUrl(uploadedUrl);
         User savedUser = userRepository.save(user);
         return toResponseDto(savedUser);
     }
@@ -122,6 +138,7 @@ public class UserService {
                 .career(user.getCareer())
                 .cycle(user.getCycle())
                 .rating(user.getRating())
+                .profileImageUrl(user.getProfileImageUrl())
                 .verified(user.isVerified())
                 .roles(user.getRoles())
                 .build();

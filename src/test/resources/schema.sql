@@ -10,6 +10,7 @@ create table users (
     career varchar(255),
     cycle integer,
     rating double,
+    profile_image_url varchar(1024),
     verified boolean not null
 );
 

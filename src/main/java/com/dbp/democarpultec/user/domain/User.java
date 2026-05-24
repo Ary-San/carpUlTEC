@@ -65,6 +65,9 @@ public class User {
 
     private Double rating;
 
+    @Column(length = 1024)
+    private String profileImageUrl;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean verified = false;

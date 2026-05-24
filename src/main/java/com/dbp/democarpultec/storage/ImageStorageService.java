@@ -22,6 +22,7 @@ import java.util.Locale;
 public class ImageStorageService {
 
 	private static final String INVALID_IMAGE_MESSAGE = "Formato de imagen no valido. Solo se permiten gif, webp, png, jpg y jpeg.";
+	private static final String INVALID_PROFILE_IMAGE_MESSAGE = "Formato de imagen no valido. Solo se permiten webp y gif para la foto de perfil.";
 
 	private final S3StorageService s3StorageService;
 
@@ -54,6 +55,37 @@ public class ImageStorageService {
 				.petPid(request.getPetPid())
 				.imageUrls(uploadedUrls)
 				.build();
+	}
+
+	public String replaceUserProfileImage(Long userId, MultipartFile image, String previousImageUrl) {
+		if (image == null || image.isEmpty()) {
+			throw new ValidationException("Debe subir una imagen de perfil");
+		}
+
+		String contentType = normalizeContentType(image.getContentType());
+		String extension = resolveExtension(image.getOriginalFilename());
+		String format = resolveProfileFormat(contentType, extension);
+		if (format == null) {
+			throw new ValidationException(INVALID_PROFILE_IMAGE_MESSAGE);
+		}
+
+		String key = buildProfileImageKey(userId, format);
+		String uploadedUrl;
+		try {
+			uploadedUrl = s3StorageService.upload(key, image.getBytes(), "image/" + format);
+		} catch (IOException ex) {
+			throw new ImageStorageException("Unable to read profile image content", ex);
+		}
+
+		if (previousImageUrl != null && !previousImageUrl.isBlank() && !previousImageUrl.equals(uploadedUrl)) {
+			try {
+				s3StorageService.deleteByUrl(previousImageUrl);
+			} catch (RuntimeException ex) {
+				throw new ImageStorageException("Unable to delete previous profile image", ex);
+			}
+		}
+
+		return uploadedUrl;
 	}
 
 	private String storeSingleImage(String petPid, MultipartFile image, int imageIndex) {
@@ -106,6 +138,10 @@ public class ImageStorageService {
 		return "pet-" + petPid + "-images/imagen" + imageIndex + "." + extension;
 	}
 
+	private String buildProfileImageKey(Long userId, String extension) {
+		return "user-" + userId + "-profile/" + System.currentTimeMillis() + "." + extension;
+	}
+
 	private String resolveFormat(String contentType, String extension) {
 		if ("image/gif".equals(contentType) || "gif".equals(extension)) {
 			return "gif";
@@ -126,6 +162,16 @@ public class ImageStorageService {
 				case "gif", "webp", "png", "jpeg", "jpg" -> resolveFormat(null, extension);
 				default -> null;
 			};
+		}
+		return null;
+	}
+
+	private String resolveProfileFormat(String contentType, String extension) {
+		if ("image/webp".equals(contentType) || "webp".equals(extension)) {
+			return "webp";
+		}
+		if ("image/gif".equals(contentType) || "gif".equals(extension)) {
+			return "gif";
 		}
 		return null;
 	}

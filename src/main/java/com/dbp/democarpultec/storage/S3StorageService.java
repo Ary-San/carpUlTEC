@@ -8,6 +8,10 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 @Service
 public class S3StorageService {
 
@@ -31,6 +35,25 @@ public class S3StorageService {
 				RequestBody.fromBytes(content)
 		);
 		return s3Client.utilities().getUrl(builder -> builder.bucket(bucketName).key(key)).toExternalForm();
+	}
+
+	public void deleteByKey(String key) {
+		s3Client.deleteObject(builder -> builder.bucket(bucketName).key(key));
+	}
+
+	public void deleteByUrl(String url) {
+		if (url == null || url.isBlank()) {
+			return;
+		}
+
+		URI uri = URI.create(url);
+		String rawPath = uri.getRawPath();
+		if (rawPath == null || rawPath.isBlank() || "/".equals(rawPath)) {
+			return;
+		}
+
+		String key = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
+		deleteByKey(URLDecoder.decode(key, StandardCharsets.UTF_8));
 	}
 
 	@PreDestroy

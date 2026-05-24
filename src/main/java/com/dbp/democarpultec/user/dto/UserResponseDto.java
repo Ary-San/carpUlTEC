@@ -24,6 +24,7 @@ public class UserResponseDto {
     private Carreras career;
     private Integer cycle;
     private Double rating;
+    private String profileImageUrl;
     private boolean verified;
     private Set<UserRole> roles;
 }
