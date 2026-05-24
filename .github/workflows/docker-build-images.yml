@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "backend/**"
+      - "/*"
 
 jobs:
   build-and-push:
@@ -22,9 +22,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        working-directory: backend/uripet
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/uripet:latest .
 
       - name: Push Docker image
         run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/uripet:latest

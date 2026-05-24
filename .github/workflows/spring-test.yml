@@ -31,14 +31,6 @@ jobs:
           echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
         continue-on-error: true
 
-      - name: Publish JUnit test report annotations
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: backend-tests
-          path: target/surefire-reports/*.xml
-          reporter: junit
-
       - name: Upload surefire reports artifact
         if: always()
         uses: actions/upload-artifact@v4
