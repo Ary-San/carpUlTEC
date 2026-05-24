@@ -32,3 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 .env
+
+### OSRM / mapas grandes ###
+data/*
+!data/.gitkeep
+

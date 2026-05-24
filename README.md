@@ -108,3 +108,49 @@ erDiagram
 - Swagger UI: `/api/docs`
 - La API expone endpoints para usuarios, vehículos, viajes, reseñas, autenticación y tracking.
 - Mapas: `POST /api/maps/nearby-rides` y `@MessageMapping("/maps/nearby-rides")` sobre `/ws`, con respuesta en `/topic/maps/nearby-rides`.
+
+## OSRM con solo .osm.pbf en Docker Compose
+
+El compose prepara OSRM automáticamente a partir del archivo `.osm.pbf` que ya tengas en `data/`:
+
+1. `osrm-prepare`: valida que exista el `.osm.pbf`, luego ejecuta `osrm-extract`, `osrm-partition` y `osrm-customize`.
+2. `osrm`: levanta `osrm-routed` usando el dataset generado.
+
+Variables opcionales en `.env`:
+
+- `OSRM_MAP_NAME` (default: `peru-260523`)
+
+Ejemplo:
+
+```env
+OSRM_MAP_NAME=peru-260523
+```
+
+Levantar servicios:
+
+```bash
+docker compose up --build
+```
+
+Nota: Los archivos grandes de mapas en `data/` quedan ignorados por Git para evitar bloqueos al hacer push.
+
+## Si ya falló un push por archivos grandes
+
+Si los blobs pesados quedaron en commits locales, no basta con agregarlos al `.gitignore`; hay que reescribir el historial local antes de volver a empujar.
+
+Ejemplo rápido (mantiene tus cambios locales pero recrea commits desde `origin/main`):
+
+```bash
+git fetch origin
+git reset --soft origin/main
+git restore --staged data/
+git add .
+git commit -m "chore: setup OSRM bootstrap from PBF and ignore data artifacts"
+git push origin main
+```
+
+Si el remoto no acepta por divergencia de historial, usa:
+
+```bash
+git push --force-with-lease origin main
+```

@@ -35,6 +35,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      osrm:
+        condition: service_started
     environment:
       DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}  
       POSTGRES_DB: ${POSTGRES_DB}
@@ -51,10 +53,37 @@ services:
       OSRM_URL: ${OSMR_URL}
       BUCKET_NAME: ${BUCKET_NAME}
       AWS_REGION: ${AWS_REGION}
-      MAPS_UTEC_LATITUDE: ${MAPS_UTEC_LATITUDE}
-      MAPS_UTEC_LONGITUDE: ${MAPS_UTEC_LONGITUDE}
-      MAPS_UTEC_SEARCH_RADIUS_METERS: ${MAPS_UTEC_SEARCH_RADIUS_METERS}
-      MAPS_UTEC_MAX_RESULTS: ${MAPS_UTEC_MAX_RESULTS}
+  osrm-prepare:
+    container_name: osrm-prepare
+    image: osrm/osrm-backend:latest
+
+    volumes:
+      - ./data:/data
+
+    environment:
+      OSRM_MAP_NAME: peru-260523
+
+    command: >
+      sh -c "
+      set -eu;
+      base=/data/$${OSRM_MAP_NAME};
+      pbf=$base.osm.pbf;
+      osrm=$base.osrm;
+      if [ ! -f \"$pbf\" ]; then
+        echo \"Missing PBF file: $pbf\";
+        echo \"Place your map file at ./data/peru-260523.osm.pbf\";
+        exit 1;
+      fi;
+      if [ -f \"$osrm\" ] && [ -f \"$base.osrm.partition\" ] && [ -f \"$base.osrm.cells\" ]; then
+        echo \"OSRM dataset already prepared for peru-260523\";
+      else
+        osrm-extract -p /opt/car.lua \"$pbf\";
+        osrm-partition \"$osrm\";
+        osrm-customize \"$osrm\";
+      fi
+      "
+
+    restart: "no"
 
   osrm:
     container_name: osrm-backend
@@ -66,7 +95,17 @@ services:
     volumes:
       - ./data:/data
 
-    command: osrm-routed --algorithm mld /data/peru-260523.osrm
+    environment:
+      OSRM_MAP_NAME: peru-260523
+
+    depends_on:
+      osrm-prepare:
+        condition: service_completed_successfully
+
+    command: >
+      sh -c "
+      osrm-routed --algorithm mld /data/peru-260523.osrm
+      "
 
     restart: unless-stopped
 volumes:
