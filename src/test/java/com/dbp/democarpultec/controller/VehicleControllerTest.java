@@ -1,6 +1,7 @@
 package com.dbp.democarpultec.controller;
 
 import com.dbp.democarpultec.vehicle.controller.VehicleController;
+import com.dbp.democarpultec.config.jwt.JwtAuthenticationFilter;
 import com.dbp.democarpultec.vehicle.dto.VehicleRequestDto;
 import com.dbp.democarpultec.vehicle.dto.VehicleResponseDto;
 import com.dbp.democarpultec.vehicle.service.VehicleService;
@@ -9,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(VehicleController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class VehicleControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -31,6 +34,9 @@ public class VehicleControllerTest {
 
     @MockitoBean
     private VehicleService vehicleService;
+
+        @MockitoBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private VehicleResponseDto buildResponse() {
         return VehicleResponseDto.builder()

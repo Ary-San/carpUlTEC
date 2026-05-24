@@ -5,7 +5,13 @@ on:
     branches:
       - "main"
     paths:
-      - "/*"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "mvnw"
+      - "mvnw.cmd"
+      - "pom.xml"
+      - "src/**"
+      - ".github/workflows/docker-build-images.yml"
 
 jobs:
   build-and-push:

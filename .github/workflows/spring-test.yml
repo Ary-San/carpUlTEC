@@ -25,10 +25,7 @@ jobs:
       - name: Run Maven tests (allow failures)
         id: run_tests
         run: |
-          set +e
           ./mvnw -B -V -DskipTests=false test
-          exit_code=$?
-          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Upload surefire reports artifact
@@ -39,7 +36,7 @@ jobs:
           path: target/surefire-reports/
 
       - name: Fail job if tests failed
-        if: ${{ steps.run_tests.outputs.exit_code != '0' }}
+        if: ${{ steps.run_tests.outcome == 'failure' }}
         run: |
           echo "Some tests failed. See annotations and surefire-reports artifact for details."
           exit 1

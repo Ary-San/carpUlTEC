@@ -55,7 +55,7 @@ public class VehicleServiceTest {
         savedVehicle.setColor("Rojo");
         savedVehicle.setSeats(4);
 
-        when(userService.findEntityById(1L)).thenReturn(owner);
+        when(userService.findVerifiedEntityById(1L)).thenReturn(owner);
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(savedVehicle);
 
         VehicleResponseDto result = vehicleService.create(dto);
@@ -66,7 +66,7 @@ public class VehicleServiceTest {
         assertEquals("Toyota", result.getBrand());
         assertEquals(1L, result.getOwnerId());
 
-        verify(userService).findEntityById(1L);
+        verify(userService).findVerifiedEntityById(1L);
         verify(vehicleRepository).save(any(Vehicle.class));
     }
 
@@ -140,7 +140,7 @@ public class VehicleServiceTest {
         updatedVehicle.setSeats(5);
 
         when(vehicleRepository.findById(1L)).thenReturn(Optional.of(existingVehicle));
-        when(userService.findEntityById(1L)).thenReturn(owner);
+        when(userService.findVerifiedEntityById(1L)).thenReturn(owner);
         when(vehicleRepository.save(any(Vehicle.class))).thenReturn(updatedVehicle);
 
         VehicleResponseDto result = vehicleService.update(1L, dto);
@@ -152,7 +152,7 @@ public class VehicleServiceTest {
         assertEquals(5, result.getSeats());
 
         verify(vehicleRepository).findById(1L);
-        verify(userService).findEntityById(1L);
+        verify(userService).findVerifiedEntityById(1L);
         verify(vehicleRepository).save(any(Vehicle.class));
     }
 

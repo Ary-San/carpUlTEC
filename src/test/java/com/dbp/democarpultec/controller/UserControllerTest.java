@@ -1,6 +1,7 @@
 package com.dbp.democarpultec.controller;
 
 import com.dbp.democarpultec.user.domain.Carreras;
+import com.dbp.democarpultec.config.jwt.JwtAuthenticationFilter;
 import com.dbp.democarpultec.user.controller.UserController;
 import com.dbp.democarpultec.user.dto.UserRequestDto;
 import com.dbp.democarpultec.user.dto.UserResponseDto;
@@ -10,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -32,6 +35,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+        @MockitoBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private UserResponseDto buildResponse(){
         return UserResponseDto.builder()

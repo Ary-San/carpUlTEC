@@ -3,6 +3,7 @@ package com.dbp.democarpultec.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import com.dbp.democarpultec.user.domain.User;
 import com.dbp.democarpultec.user.repository.UserRepository;
@@ -12,7 +13,16 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@DataJpaTest(properties = {
+    "spring.datasource.url=jdbc:h2:mem:demoCarpultecTest;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false",
+    "spring.datasource.driverClassName=org.h2.Driver",
+    "spring.datasource.username=sa",
+    "spring.datasource.password=",
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
+    "spring.jpa.open-in-view=false"
+})
+@Sql(scripts = "/schema.sql")
 class UserRepositoryTest {
 
     @Autowired
