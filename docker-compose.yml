@@ -50,7 +50,7 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       FRONTEND_URL: ${FRONTEND_URL}
-      OSRM_URL: ${OSMR_URL}
+      OSRM_URL: ${OSRM_URL:-http://osrm:5000}
       BUCKET_NAME: ${BUCKET_NAME}
       AWS_REGION: ${AWS_REGION}
   osrm-prepare:
@@ -60,26 +60,22 @@ services:
     volumes:
       - ./data:/data
 
-    environment:
-      OSRM_MAP_NAME: peru-260523
-
     command: >
       sh -c "
       set -eu;
-      base=/data/$${OSRM_MAP_NAME};
-      pbf=$base.osm.pbf;
-      osrm=$base.osrm;
-      if [ ! -f \"$pbf\" ]; then
-        echo \"Missing PBF file: $pbf\";
+      pbf=/data/peru-260523.osm.pbf;
+      osrm=/data/peru-260523.osrm;
+      if [ ! -f \"$$pbf\" ]; then
+        echo \"Missing PBF file: $$pbf\";
         echo \"Place your map file at ./data/peru-260523.osm.pbf\";
         exit 1;
       fi;
-      if [ -f \"$osrm\" ] && [ -f \"$base.osrm.partition\" ] && [ -f \"$base.osrm.cells\" ]; then
+      if [ -f \"$$osrm\" ] && [ -f \"/data/peru-260523.osrm.partition\" ] && [ -f \"/data/peru-260523.osrm.cells\" ]; then
         echo \"OSRM dataset already prepared for peru-260523\";
       else
-        osrm-extract -p /opt/car.lua \"$pbf\";
-        osrm-partition \"$osrm\";
-        osrm-customize \"$osrm\";
+        osrm-extract -p /opt/car.lua \"$$pbf\";
+        osrm-partition \"$$osrm\";
+        osrm-customize \"$$osrm\";
       fi
       "
 
@@ -94,9 +90,6 @@ services:
 
     volumes:
       - ./data:/data
-
-    environment:
-      OSRM_MAP_NAME: peru-260523
 
     depends_on:
       osrm-prepare:
