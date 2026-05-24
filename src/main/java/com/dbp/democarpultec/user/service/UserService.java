@@ -20,6 +20,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class UserService {
 
     private final UserRepository userRepository;
@@ -79,6 +80,18 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email " + email));
     }
 
+    public @NonNull User findEntityByVerificationCode(@NonNull String verificationCode) {
+        return userRepository.findByVerificationCode(verificationCode)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with verification code " + verificationCode));
+    }
+
+    @Transactional
+    public User assignVerificationCode(@NonNull Long id, @NonNull String verificationCode) {
+        User user = findEntityById(id);
+        user.setVerificationCode(verificationCode);
+        return userRepository.save(user);
+    }
+
     public @NonNull User findVerifiedEntityById(@NonNull Long id) {
         User user = findEntityById(id);
         if (!user.isVerified()) {
@@ -91,6 +104,16 @@ public class UserService {
     public UserResponseDto verifyUser(@NonNull Long id) {
         User user = findEntityById(id);
         user.setVerified(true);
+        user.setVerificationCode(null);
+        User savedUser = userRepository.save(user);
+        return toResponseDto(savedUser);
+    }
+
+    @Transactional
+    public UserResponseDto verifyUserByCode(@NonNull String verificationCode) {
+        User user = findEntityByVerificationCode(verificationCode);
+        user.setVerified(true);
+        user.setVerificationCode(null);
         User savedUser = userRepository.save(user);
         return toResponseDto(savedUser);
     }

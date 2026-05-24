@@ -2,11 +2,14 @@ package com.dbp.democarpultec.ride.service;
 
 import com.dbp.democarpultec.exception.InsufficientSeatsException;
 import com.dbp.democarpultec.exception.InvalidRideStateException;
+import com.dbp.democarpultec.email.EmailService;
+import com.dbp.democarpultec.pickup.repository.PickUpRepository;
 import com.dbp.democarpultec.ride.domain.Ride;
 import com.dbp.democarpultec.ride.domain.RideStatus;
 import com.dbp.democarpultec.ride.dto.RideRequestDto;
 import com.dbp.democarpultec.ride.dto.RideResponseDto;
 import com.dbp.democarpultec.ride.repository.RideRepository;
+import com.dbp.democarpultec.user.domain.User;
 import com.dbp.democarpultec.user.service.UserService;
 import com.dbp.democarpultec.vehicle.service.VehicleService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +27,8 @@ public class RideService {
     private final RideRepository rideRepository;
     private final UserService userService;
     private final VehicleService vehicleService;
+    private final PickUpRepository pickUpRepository;
+    private final EmailService emailService;
 
     public List<RideResponseDto> findAll() {
         return rideRepository.findAll().stream().map(this::toResponseDto).toList();
@@ -93,7 +98,9 @@ public class RideService {
         }
         validateStatusTransition(ride.getStatus(), status);
         ride.setStatus(status);
-        return rideRepository.save(ride);
+        Ride savedRide = rideRepository.save(ride);
+        notifyRideStatusChange(savedRide);
+        return savedRide;
     }
 
     @Transactional
@@ -156,5 +163,21 @@ public class RideService {
                 .direction(ride.getDirection())
                 .availableSeats(ride.getAvailableSeats())
                 .build();
+    }
+
+    private void notifyRideStatusChange(Ride ride) {
+        List<User> passengers = pickUpRepository.findByRide_IdOrderBySequenceAsc(ride.getId()).stream()
+                .map(pickUp -> pickUp.getPassenger())
+                .distinct()
+                .toList();
+        List<User> recipients = new java.util.ArrayList<>(passengers);
+        recipients.add(ride.getDriver());
+
+        if (ride.getStatus() == RideStatus.ACTIVE) {
+            emailService.sendRideStartedEmail(ride, recipients);
+        }
+        if (ride.getStatus() == RideStatus.COMPLETED) {
+            emailService.sendRideCompletedEmail(ride, recipients);
+        }
     }
 }

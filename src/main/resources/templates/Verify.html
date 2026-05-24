@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title th:text="${title}">Tu viaje finalizó</title>
+	<title th:text="${title}">Cuenta verificada</title>
 	<style>
 		:root {
 			--utec-blue: #003B5C;
@@ -14,8 +14,8 @@
 			--white: #FFFFFF;
 		}
 		body { margin: 0; padding: 0; background: var(--light-gray); color: var(--black); font-family: Arial, Helvetica, sans-serif; }
-		.wrapper { width: 100%; padding: 32px 16px; box-sizing: border-box; }
-		.card { max-width: 720px; margin: 0 auto; background: var(--white); border: 1px solid var(--light-gray); border-radius: 20px; overflow: hidden; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08); }
+		.wrapper { width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 32px 16px; box-sizing: border-box; }
+		.card { width: 100%; max-width: 720px; background: var(--white); border: 1px solid var(--light-gray); border-radius: 20px; overflow: hidden; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08); }
 		.header { background: linear-gradient(135deg, var(--utec-blue), var(--bright-blue)); color: var(--white); padding: 32px; }
 		.brand { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.9; }
 		h1 { margin: 12px 0 0; font-size: 32px; line-height: 1.1; }
@@ -34,20 +34,24 @@
 	<div class="card">
 		<div class="header">
 			<div class="brand" th:text="${appName}">CarpulTEC</div>
-			<h1 th:text="${title}">Tu viaje finalizó</h1>
+			<h1 th:text="${title}">Cuenta verificada</h1>
 		</div>
 		<div class="content">
 			<p class="lead">Hola <strong th:text="${recipientName}">Usuario</strong>,</p>
-			<p class="lead" th:text="${message}">El viaje terminó. Califícalo o deja tu reseña en la app.</p>
+			<p class="lead" th:text="${message}">Usa el código para completar la verificación.</p>
+			<div class="details" style="margin-top: 28px; text-align: center;">
+				<div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 10px;">Código de verificación</div>
+				<div style="display: inline-block; padding: 14px 22px; border-radius: 16px; background: var(--light-gray); color: var(--utec-blue); font-size: 28px; font-weight: 800; letter-spacing: 0.16em;" th:text="${verificationCode}">123456</div>
+			</div>
 			<ul class="details">
 				<li class="detail" th:each="item : ${details.entrySet()}">
 					<span class="label" th:text="${item.key}">Etiqueta</span>
 					<span class="value" th:text="${item.value}">Valor</span>
 				</li>
 			</ul>
-			<a class="button" th:href="${actionUrl}" th:text="${actionLabel}">Abrir la app</a>
+			<a class="button" th:href="${actionUrl}" th:text="${actionLabel}">Ir a la app</a>
 		</div>
-		<div class="footer">Gracias por usar CarpulTEC.</div>
+		<div class="footer">Ya puedes iniciar sesión y usar los viajes.</div>
 	</div>
 </div>
 </body>

@@ -3,6 +3,7 @@ package com.dbp.democarpultec.pickup.service;
 import com.dbp.democarpultec.exception.InsufficientSeatsException;
 import com.dbp.democarpultec.exception.InvalidPickupStateException;
 import com.dbp.democarpultec.exception.InvalidRideStateException;
+import com.dbp.democarpultec.email.EmailService;
 import com.dbp.democarpultec.pickup.domain.PickUp;
 import com.dbp.democarpultec.pickup.domain.PickUpStatus;
 import com.dbp.democarpultec.pickup.dto.PickUpRequestDto;
@@ -27,6 +28,7 @@ public class PickUpService {
     private final PickUpRepository pickUpRepository;
     private final UserService userService;
     private final RideService rideService;
+    private final EmailService emailService;
 
     public List<PickUpResponseDto> findAllByRide(@NonNull Long rideId) {
         return pickUpRepository.findByRide_IdOrderBySequenceAsc(rideId).stream().map(this::toResponseDto).toList();
@@ -36,6 +38,7 @@ public class PickUpService {
         return toResponseDto(findEntityById(id));
     }
 
+    @SuppressWarnings("null")
     @Transactional
     public PickUpResponseDto create(PickUpRequestDto dto) {
         Ride ride = rideService.findEntityById(dto.getRideId());
@@ -57,17 +60,18 @@ public class PickUpService {
             throw new InvalidPickupStateException("Pickup sequence already exists for this ride");
         }
 
-        rideService.reserveSeat(dto.getRideId());
+        Ride updatedRide = rideService.reserveSeat(dto.getRideId());
 
         PickUp pickUp = PickUp.builder()
-                .ride(ride)
+            .ride(updatedRide)
                 .passenger(passenger)
                 .locationName(dto.getLocationName())
                 .sequence(dto.getSequence())
                 .status(PickUpStatus.PENDING)
                 .build();
-            PickUp savedPickUp = pickUpRepository.save(pickUp);
-            return toResponseDto(savedPickUp);
+                    pickUpRepository.save(pickUp);
+            emailService.sendRideScheduleEmail(passenger, updatedRide);
+                    return toResponseDto(pickUp);
     }
 
     @Transactional

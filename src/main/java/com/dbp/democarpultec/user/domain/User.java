@@ -68,6 +68,9 @@ public class User {
     @Column(length = 1024)
     private String profileImageUrl;
 
+    @Column(unique = true)
+    private String verificationCode;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean verified = false;
