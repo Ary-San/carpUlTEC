@@ -1,10 +1,12 @@
 package com.dbp.democarpultec.service;
 
-import com.dbp.democarpultec.dto.UserRequestDto;
-import com.dbp.democarpultec.dto.UserResponseDto;
-import com.dbp.democarpultec.model.User;
 import com.dbp.democarpultec.model.enums.Carreras;
-import com.dbp.democarpultec.repository.UserRepository;
+import com.dbp.democarpultec.user.domain.User;
+import com.dbp.democarpultec.user.dto.UserRequestDto;
+import com.dbp.democarpultec.user.dto.UserResponseDto;
+import com.dbp.democarpultec.user.repository.UserRepository;
+import com.dbp.democarpultec.user.service.UserService;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

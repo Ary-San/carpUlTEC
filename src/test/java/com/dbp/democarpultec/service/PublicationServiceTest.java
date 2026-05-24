@@ -3,8 +3,10 @@ package com.dbp.democarpultec.service;
 import com.dbp.democarpultec.dto.PublicationRequestDto;
 import com.dbp.democarpultec.dto.PublicationResponseDto;
 import com.dbp.democarpultec.model.Publication;
-import com.dbp.democarpultec.model.User;
 import com.dbp.democarpultec.repository.PublicationRepository;
+import com.dbp.democarpultec.user.domain.User;
+import com.dbp.democarpultec.user.service.UserService;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

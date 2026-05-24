@@ -3,10 +3,13 @@ package com.dbp.democarpultec.service;
 import com.dbp.democarpultec.dto.RideRequestDto;
 import com.dbp.democarpultec.dto.RideResponseDto;
 import com.dbp.democarpultec.model.Publication;
-import com.dbp.democarpultec.model.Ride;
-import com.dbp.democarpultec.model.User;
-import com.dbp.democarpultec.model.Vehicle;
 import com.dbp.democarpultec.repository.RideRepository;
+import com.dbp.democarpultec.ride.domain.Ride;
+import com.dbp.democarpultec.user.domain.User;
+import com.dbp.democarpultec.user.service.UserService;
+import com.dbp.democarpultec.vehicle.domain.Vehicle;
+import com.dbp.democarpultec.vehicle.service.VehicleService;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

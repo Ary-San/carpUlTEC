@@ -1,9 +1,10 @@
 package com.dbp.democarpultec.controller;
 
-import com.dbp.democarpultec.dto.UserRequestDto;
-import com.dbp.democarpultec.dto.UserResponseDto;
 import com.dbp.democarpultec.model.enums.Carreras;
-import com.dbp.democarpultec.service.UserService;
+import com.dbp.democarpultec.user.controller.UserController;
+import com.dbp.democarpultec.user.dto.UserRequestDto;
+import com.dbp.democarpultec.user.dto.UserResponseDto;
+import com.dbp.democarpultec.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,11 @@
 package com.dbp.democarpultec.repository;
 
-import com.dbp.democarpultec.model.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import com.dbp.democarpultec.user.domain.User;
+import com.dbp.democarpultec.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;

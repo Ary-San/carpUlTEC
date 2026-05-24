@@ -1,8 +1,9 @@
 package com.dbp.democarpultec.controller;
 
-import com.dbp.democarpultec.dto.VehicleRequestDto;
-import com.dbp.democarpultec.dto.VehicleResponseDto;
-import com.dbp.democarpultec.service.VehicleService;
+import com.dbp.democarpultec.vehicle.controller.VehicleController;
+import com.dbp.democarpultec.vehicle.dto.VehicleRequestDto;
+import com.dbp.democarpultec.vehicle.dto.VehicleResponseDto;
+import com.dbp.democarpultec.vehicle.service.VehicleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
