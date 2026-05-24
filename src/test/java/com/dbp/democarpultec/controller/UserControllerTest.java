@@ -1,6 +1,6 @@
 package com.dbp.democarpultec.controller;
 
-import com.dbp.democarpultec.model.enums.Carreras;
+import com.dbp.democarpultec.user.domain.Carreras;
 import com.dbp.democarpultec.user.controller.UserController;
 import com.dbp.democarpultec.user.dto.UserRequestDto;
 import com.dbp.democarpultec.user.dto.UserResponseDto;

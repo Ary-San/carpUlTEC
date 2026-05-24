@@ -22,5 +22,32 @@ jobs:
       - name: Grant execute permission
         run: chmod +x mvnw
 
-      - name: Run tests
-        run: ./mvnw clean verify
+      - name: Run Maven tests (allow failures)
+        id: run_tests
+        run: |
+          set +e
+          ./mvnw -B -V -DskipTests=false test
+          exit_code=$?
+          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Publish JUnit test report annotations
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: backend-tests
+          path: target/surefire-reports/*.xml
+          reporter: junit
+
+      - name: Upload surefire reports artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+
+      - name: Fail job if tests failed
+        if: ${{ steps.run_tests.outputs.exit_code != '0' }}
+        run: |
+          echo "Some tests failed. See annotations and surefire-reports artifact for details."
+          exit 1
