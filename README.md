@@ -107,3 +107,4 @@ erDiagram
 
 - Swagger UI: `/api/docs`
 - La API expone endpoints para usuarios, vehículos, viajes, reseñas, autenticación y tracking.
+- Mapas: `POST /api/maps/nearby-rides` y `@MessageMapping("/maps/nearby-rides")` sobre `/ws`, con respuesta en `/topic/maps/nearby-rides`.
