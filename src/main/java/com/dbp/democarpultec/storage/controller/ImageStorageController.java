@@ -20,8 +20,8 @@ public class ImageStorageController {
 
 	private final ImageStorageService imageStorageService;
 
-	@PostMapping(value = "/pet-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<ImageStorageResponseDto> storePetImages(@Valid @ModelAttribute ImageStorageRequestDto request) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(imageStorageService.storePetImages(request));
+	@PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<ImageStorageResponseDto> storeImages(@Valid @ModelAttribute ImageStorageRequestDto request) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(imageStorageService.storeImages(request.getImages()));
 	}
 }

@@ -13,6 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ImageStorageResponseDto {
 
-	private String petPid;
 	private List<String> imageUrls;
 }

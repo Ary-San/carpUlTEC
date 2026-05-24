@@ -1,6 +1,5 @@
 package com.dbp.democarpultec.storage.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,9 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImageStorageRequestDto {
-
-	@NotBlank
-	private String petPid;
 
 	@NotEmpty
 	private List<MultipartFile> images;

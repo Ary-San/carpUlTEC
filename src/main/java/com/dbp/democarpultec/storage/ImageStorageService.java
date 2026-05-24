@@ -1,7 +1,6 @@
 package com.dbp.democarpultec.storage;
 
 import com.dbp.democarpultec.exception.ImageStorageException;
-import com.dbp.democarpultec.storage.dto.ImageStorageRequestDto;
 import com.dbp.democarpultec.storage.dto.ImageStorageResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,9 +29,11 @@ public class ImageStorageService {
 		ImageIO.scanForPlugins();
 	}
 
-	public List<String> storePetImages(String petPid, List<MultipartFile> images) {
+	public ImageStorageResponseDto storeImages(List<MultipartFile> images) {
 		if (images == null || images.isEmpty()) {
-			return List.of();
+			return ImageStorageResponseDto.builder()
+					.imageUrls(List.of())
+					.build();
 		}
 
 		List<String> uploadedUrls = new ArrayList<>();
@@ -42,17 +43,11 @@ public class ImageStorageService {
 			if (image == null || image.isEmpty()) {
 				continue;
 			}
-			uploadedUrls.add(storeSingleImage(petPid, image, imageIndex));
+			uploadedUrls.add(storeSingleImage(image, imageIndex));
 			imageIndex++;
 		}
 
-		return uploadedUrls;
-	}
-
-	public ImageStorageResponseDto storePetImages(ImageStorageRequestDto request) {
-		List<String> uploadedUrls = storePetImages(request.getPetPid(), request.getImages());
 		return ImageStorageResponseDto.builder()
-				.petPid(request.getPetPid())
 				.imageUrls(uploadedUrls)
 				.build();
 	}
@@ -88,7 +83,7 @@ public class ImageStorageService {
 		return uploadedUrl;
 	}
 
-	private String storeSingleImage(String petPid, MultipartFile image, int imageIndex) {
+	private String storeSingleImage(MultipartFile image, int imageIndex) {
 		String contentType = normalizeContentType(image.getContentType());
 		String extension = resolveExtension(image.getOriginalFilename());
 		String format = resolveFormat(contentType, extension);
@@ -98,23 +93,23 @@ public class ImageStorageService {
 		}
 
 		return switch (format) {
-			case "gif" -> uploadAsIs(petPid, image, imageIndex, "gif", "image/gif");
-			case "webp" -> uploadAsIs(petPid, image, imageIndex, "webp", "image/webp");
-			case "png", "jpeg" -> uploadAsWebp(petPid, image, imageIndex);
+			case "gif" -> uploadAsIs(image, imageIndex, "gif", "image/gif");
+			case "webp" -> uploadAsIs(image, imageIndex, "webp", "image/webp");
+			case "png", "jpeg" -> uploadAsWebp(image, imageIndex);
 			default -> throw new ValidationException(INVALID_IMAGE_MESSAGE);
 		};
 	}
 
-	private String uploadAsIs(String petPid, MultipartFile image, int imageIndex, String extension, String contentType) {
+	private String uploadAsIs(MultipartFile image, int imageIndex, String extension, String contentType) {
 		try {
-			String key = buildKey(petPid, imageIndex, extension);
+			String key = buildKey(imageIndex, extension);
 			return s3StorageService.upload(key, image.getBytes(), contentType);
 		} catch (IOException ex) {
 			throw new ImageStorageException("Unable to read image content", ex);
 		}
 	}
 
-	private String uploadAsWebp(String petPid, MultipartFile image, int imageIndex) {
+	private String uploadAsWebp(MultipartFile image, int imageIndex) {
 		try {
 			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(image.getBytes()));
 			if (bufferedImage == null) {
@@ -127,15 +122,15 @@ public class ImageStorageService {
 				throw new ImageStorageException("WEBP encoder is not available");
 			}
 
-			String key = buildKey(petPid, imageIndex, "webp");
+			String key = buildKey(imageIndex, "webp");
 			return s3StorageService.upload(key, outputStream.toByteArray(), "image/webp");
 		} catch (IOException ex) {
 			throw new ImageStorageException("Unable to transform image", ex);
 		}
 	}
 
-	private String buildKey(String petPid, int imageIndex, String extension) {
-		return "pet-" + petPid + "-images/imagen" + imageIndex + "." + extension;
+	private String buildKey(int imageIndex, String extension) {
+		return "images/imagen" + imageIndex + "." + extension;
 	}
 
 	private String buildProfileImageKey(Long userId, String extension) {
