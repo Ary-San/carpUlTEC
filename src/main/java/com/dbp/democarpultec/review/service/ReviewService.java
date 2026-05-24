@@ -19,12 +19,13 @@ import com.dbp.democarpultec.vehicle.domain.Vehicle;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -36,8 +37,8 @@ public class ReviewService {
     private final UserService userService;
     private final PickUpRepository pickUpRepository;
 
-    public List<ReviewResponseDto> findAll() {
-        return reviewRepository.findAll().stream().map(this::toResponseDto).toList();
+    public Page<ReviewResponseDto> findAll(Pageable pageable) {
+        return reviewRepository.findAll(pageable).map(this::toResponseDto);
     }
 
     public ReviewResponseDto findById(@NonNull Long id) {

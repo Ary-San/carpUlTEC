@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -68,24 +70,25 @@ public class UserControllerTest {
 
     @Test
     void shouldReturnAllUsersWhenUsersExist() throws Exception {
-        when(userService.findAll()).thenReturn(List.of(buildResponse()));
+        when(userService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(buildResponse())));
 
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users?page=1&size=5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Juan"))
-                .andExpect(jsonPath("$[0].email").value("juan@test.com"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Juan"))
+                .andExpect(jsonPath("$.content[0].email").value("juan@test.com"))
+                .andExpect(jsonPath("$.totalElements").value(1));
 
-        verify(userService).findAll();
+        verify(userService).findAll(any(Pageable.class));
     }
 
     @Test
     void shouldReturnEmptyListWhenNoUsersExist() throws Exception {
-        when(userService.findAll()).thenReturn(List.of());
+                when(userService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     @Test

@@ -10,12 +10,13 @@ import com.dbp.democarpultec.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -26,8 +27,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final ImageStorageService imageStorageService;
 
-    public List<UserResponseDto> findAll() {
-        return userRepository.findAll().stream().map(this::toResponseDto).toList();
+    public Page<UserResponseDto> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable).map(this::toResponseDto);
     }
 
     public UserResponseDto findById(@NonNull Long id) {

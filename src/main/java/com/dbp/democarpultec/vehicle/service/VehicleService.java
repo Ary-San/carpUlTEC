@@ -9,10 +9,10 @@ import com.dbp.democarpultec.vehicle.repository.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +21,8 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final UserService userService;
 
-    public List<VehicleResponseDto> findAll() {
-        return vehicleRepository.findAll().stream().map(this::toResponseDto).toList();
+    public Page<VehicleResponseDto> findAll(Pageable pageable) {
+        return vehicleRepository.findAll(pageable).map(this::toResponseDto);
     }
 
     public VehicleResponseDto findById(@NonNull Long id) {

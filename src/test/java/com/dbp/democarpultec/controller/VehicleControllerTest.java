@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -63,24 +65,25 @@ public class VehicleControllerTest {
 
     @Test
     void shouldReturnAllVehiclesWhenVehiclesExist() throws Exception {
-        when(vehicleService.findAll()).thenReturn(List.of(buildResponse()));
+        when(vehicleService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(buildResponse())));
 
-        mockMvc.perform(get("/api/vehicles"))
+        mockMvc.perform(get("/api/vehicles?page=2&size=3"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].plate").value("ABC-123"))
-                .andExpect(jsonPath("$[0].brand").value("Toyota"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].plate").value("ABC-123"))
+                .andExpect(jsonPath("$.content[0].brand").value("Toyota"))
+                .andExpect(jsonPath("$.totalElements").value(1));
 
-        verify(vehicleService).findAll();
+        verify(vehicleService).findAll(any(Pageable.class));
     }
 
     @Test
     void shouldReturnEmptyListWhenNoVehiclesExist() throws Exception {
-        when(vehicleService.findAll()).thenReturn(List.of());
+                when(vehicleService.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
 
         mockMvc.perform(get("/api/vehicles"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
     }
 
     @Test
