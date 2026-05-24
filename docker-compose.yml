@@ -1,6 +1,6 @@
 services:
   postgres:
-    container_name: uripet-db
+    container_name: carpultec-db
     image: postgres:17
 
     environment:
@@ -52,5 +52,18 @@ services:
       BUCKET_NAME: ${BUCKET_NAME}
       AWS_REGION: ${AWS_REGION}
 
+  osrm:
+    container_name: osrm-backend
+    image: osrm/osrm-backend:latest
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - ./data:/data
+
+    command: osrm-routed --algorithm mld /data/peru-260523.osrm
+
+    restart: unless-stopped
 volumes:
   postgres_data:
